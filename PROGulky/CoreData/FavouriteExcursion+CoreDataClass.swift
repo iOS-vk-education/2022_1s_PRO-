@@ -12,7 +12,7 @@ import CoreData
 // MARK: - FavouriteExcursion
 
 @objc(FavouriteExcursion)
-public class FavouriteExcursion: NSManagedObject {}
+public final class FavouriteExcursion: NSManagedObject {}
 
 public extension FavouriteExcursion {
     @nonobjc class func fetchRequest() -> NSFetchRequest<FavouriteExcursion> {

@@ -1,43 +1,28 @@
 PODS:
-  - SDWebImage (5.14.2):
-    - SDWebImage/Core (= 5.14.2)
-  - SDWebImage/Core (5.14.2)
-  - SDWebImageSwiftUI (2.2.1):
-    - SDWebImage (~> 5.10)
   - SkeletonUI (1.0.11)
   - SnapKit (5.6.0)
-  - SwiftFormat/CLI (0.49.9)
   - SwiftLint (0.47.1)
   - YandexMapsMobile (4.2.2-full)
 
 DEPENDENCIES:
-  - SDWebImage (~> 5.14)
-  - SDWebImageSwiftUI (~> 2.2.1)
   - SkeletonUI (~> 1.0.11)
   - SnapKit (~> 5.6.0)
-  - SwiftFormat/CLI (~> 0.49)
   - SwiftLint (~> 0.47.1)
   - YandexMapsMobile (= 4.2.2-full)
 
 SPEC REPOS:
   trunk:
-    - SDWebImage
-    - SDWebImageSwiftUI
     - SkeletonUI
     - SnapKit
-    - SwiftFormat
     - SwiftLint
     - YandexMapsMobile
 
 SPEC CHECKSUMS:
-  SDWebImage: b9a731e1d6307f44ca703b3976d18c24ca561e84
-  SDWebImageSwiftUI: 2ecf5ab6f574526326b10ecb155e72a88059d0f0
   SkeletonUI: a5514a3877d39f28229c852a567660d0f7542330
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
-  SwiftFormat: 016c15401d06959ef9f81d7956462e91f55b8ac5
   SwiftLint: f80f1be7fa96d30e0aa68e58d45d4ea1ccaac519
   YandexMapsMobile: 1fd5f86bc368ad6ba528b199f9477e4a26796567
 
-PODFILE CHECKSUM: 99832cc60690bf506aa95d4760b56c4891ac2a1b
+PODFILE CHECKSUM: 71f1c9f127035e7379ce405bdaf787fa522ad57f
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.11.3

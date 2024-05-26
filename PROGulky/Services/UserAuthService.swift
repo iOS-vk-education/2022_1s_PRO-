@@ -150,5 +150,6 @@ final class UserAuthService {
 
     func logout() {
         UserDefaultsManager.shared.removeUserAuthData()
+		CoreDataManager.shared.deleteAllFavouritesExcursions()
     }
 }

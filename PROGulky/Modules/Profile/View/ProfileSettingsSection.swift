@@ -36,8 +36,8 @@ enum AccountOptions: Int, CaseIterable, SectionType {
 //    case personalDataSettings
 //    case achievements
 //    case history
-    case beGuide
     case changeTheme
+	case beGuide
 
     var containsSwitch: Bool {
         false
@@ -78,7 +78,7 @@ enum AccountOptions: Int, CaseIterable, SectionType {
 
 enum OtherOptions: Int, CaseIterable, SectionType {
     case contactUs
-    case privacyPolicy
+//    case privacyPolicy
     case signOut
 
     var containsSwitch: Bool {
@@ -89,8 +89,8 @@ enum OtherOptions: Int, CaseIterable, SectionType {
         switch self {
         case .contactUs:
             return TextConstantsProfile.titleContactUs
-        case .privacyPolicy:
-            return TextConstantsProfile.titlePrivacyPolicy
+//        case .privacyPolicy:
+//            return TextConstantsProfile.titlePrivacyPolicy
         case .signOut:
             return TextConstantsProfile.titleSignOut
         }
@@ -100,8 +100,8 @@ enum OtherOptions: Int, CaseIterable, SectionType {
         switch self {
         case .contactUs:
             return "square.and.pencil"
-        case .privacyPolicy:
-            return "checkmark.shield"
+//        case .privacyPolicy:
+//            return "checkmark.shield"
         case .signOut:
             return "multiply.circle"
         }

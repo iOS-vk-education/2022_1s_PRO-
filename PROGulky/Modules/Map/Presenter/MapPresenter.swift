@@ -59,17 +59,27 @@ extension MapPresenter: MapViewOutput {
     func didLoadView() {
         let lastWayPointNumber = excursion.places.count - 1
 
-        requestPoints = excursion.places.enumerated().map { element in
-            let place = element.element
-            let count = element.offset
-            let point = YMKRequestPoint(
-                point: YMKPoint(latitude: place.latitude,
-                                longitude: place.longitude),
-                type: count == 0 || count == lastWayPointNumber ? .waypoint : .viapoint,
-                pointContext: nil
-            )
-            return point
-        }
+		requestPoints = excursion.places
+			.sorted(by: { lhs, rhs in
+				guard let first = lhs.sort,
+					  let second = rhs.sort
+				else {
+					return lhs.id < rhs.id
+				}
+				return first < second
+			})
+			.enumerated()
+			.map { element in
+				let place = element.element
+				let count = element.offset
+				let point = YMKRequestPoint(
+					point: YMKPoint(latitude: place.latitude,
+									longitude: place.longitude),
+					type: count == 0 || count == lastWayPointNumber ? .waypoint : .viapoint,
+					pointContext: nil
+				)
+				return point
+			}
 
         let responseHandler = { (routesResponse: [YMKMasstransitRoute]?, error: Error?) in
             if let routes = routesResponse {

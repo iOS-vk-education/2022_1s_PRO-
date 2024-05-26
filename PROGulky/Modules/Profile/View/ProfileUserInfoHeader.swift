@@ -6,13 +6,14 @@
 //
 
 import UIKit
-
+import Kingfisher
 // MARK: - UserInfoHeader
 
 final class UserInfoHeader: UIView {
     struct DisplayData {
         let username: String
         let status: String
+		let image: String?
     }
 
     private let imagePicker = UIImagePickerController()
@@ -33,7 +34,7 @@ final class UserInfoHeader: UIView {
         }
 
         let imageURL = "\(ExcursionsListConstants.Api.ownerImageURL)/\(image)"
-        iv.sd_setImage(with: URL(string: imageURL), placeholderImage: UIImage(systemName: "person.crop.circle"))
+		iv.kf.setImage(with: URL(string: imageURL), placeholder: UIImage(systemName: "person.crop.circle"))
 
         return iv
     }()
@@ -91,6 +92,12 @@ final class UserInfoHeader: UIView {
     func configure(_ displayData: DisplayData) {
         usernameLabel.text = displayData.username
         statusLabel.text = displayData.status
+		guard let imageString = displayData.image,
+			  let url = URL(string: "\(ExcursionsListConstants.Api.ownerImageURL)/\(imageString)")
+		else { 
+			profileImageView.image = UIImage(systemName: "person.crop.circle")
+			return }
+		profileImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "person.crop.circle"))
     }
 }
 

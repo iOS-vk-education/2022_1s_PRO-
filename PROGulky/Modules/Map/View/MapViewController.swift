@@ -16,7 +16,9 @@ final class MapViewController: UIViewController {
     var output: MapViewOutput!
 
     private let button = UIButton()
+    private let button2 = UIButton()
     private let listener: CameraListener = .init()
+	private var locationLayer: YMKUserLocationLayer?
 
     private enum Constants {
         enum Compass {
@@ -24,6 +26,10 @@ final class MapViewController: UIViewController {
             static let heightWidth: CGFloat = 40
             static let trailingOffset: CGFloat = -24
         }
+
+		enum Location {
+			static let size: CGFloat = 80
+		}
 
         static let animationDuration = 0.170
 
@@ -40,13 +46,25 @@ final class MapViewController: UIViewController {
         setupMaps()
         setupButton()
         output.didLoadView()
+		LocationManager.shared.requestLocation()
     }
 
     private func setupMaps() {
         mapView = YMKMapView(frame: view.bounds, vulkanPreferred: isM1Simulator())
         mapView.mapWindow.map.mapType = .map
         view.addSubview(mapView)
-
+		let mapKit = YMKMapKit.sharedInstance()
+		locationLayer = mapKit.createUserLocationLayer(with: mapView.mapWindow)
+		locationLayer?.setVisibleWithOn(true)
+		locationLayer?.isHeadingEnabled = false
+//		userLocationLayer.setAnchorWithAnchorNormal(
+//			CGPoint(x: view.frame.midX, y: view.frame.midY),
+//			anchorCourse: CGPoint(x: view.frame.midX, y: view.frame.midY)
+//		)
+//		userLocationLayer.setAnchorWithAnchorNormal(
+//			CGPoint(x: 0.5 * mapView.frame.size.width * scale, y: 0.5 * mapView.frame.size.height * scale),
+//			anchorCourse: CGPoint(x: 0.5 * mapView.frame.size.width * scale, y: 0.83 * mapView.frame.size.height * scale))
+		locationLayer?.setObjectListenerWith(listener)
         listener.delegate = self
 
         mapView.mapWindow.map.addCameraListener(with: listener)
@@ -65,7 +83,26 @@ final class MapViewController: UIViewController {
             make.height.equalTo(Constants.Compass.heightWidth)
             make.width.equalTo(Constants.Compass.heightWidth)
         }
-        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside) 
+
+		view.addSubview(button2)
+        view.bringSubviewToFront(button2)
+        button2.setImage(
+			UIImage(systemName: "location.circle.fill")?
+				.withTintColor(.blue, renderingMode: .alwaysTemplate)
+				.applyingSymbolConfiguration(.init(pointSize: Constants.Compass.heightWidth)),
+			for: .normal
+			)
+        button2.snp.makeConstraints { make in
+            make.bottom.equalToSuperview()
+                .offset(Constants.Compass.bottomOffset)
+            make.leading.equalToSuperview()
+                .offset(-Constants.Compass.trailingOffset)
+			make.height.equalTo(Constants.Compass.heightWidth)
+			make.width.equalTo(Constants.Compass.heightWidth
+			)
+        }
+        button2.addTarget(self, action: #selector(button2Tapped(_:)), for: .touchUpInside)
     }
 
     private func isM1Simulator() -> Bool {
@@ -91,6 +128,20 @@ final class MapViewController: UIViewController {
                                         duration: Float(Constants.animationDuration))
         )
     }
+    @objc
+    private func button2Tapped(_ sender: UIButton) {
+		guard var cameraPosition = locationLayer?.cameraPosition() else { return }
+        mapView.mapWindow.map.move(
+            with: YMKCameraPosition(
+				target: cameraPosition.target,
+				zoom: cameraPosition.zoom > Constants.zoom ? cameraPosition.zoom : Constants.zoom,
+				azimuth: cameraPosition.azimuth,
+				tilt: cameraPosition.tilt
+			),
+            animationType: YMKAnimation(type: YMKAnimationType.linear,
+                                        duration: Float(Constants.animationDuration))
+        )
+    }
 }
 
 // MARK: MapViewInput
@@ -111,7 +162,7 @@ extension MapViewController: MapViewInput {
                 mapObjects.addPlacemark(with: point, image: MapView.pointImage(index + 1))
             }
         }
-        var sumPoint = points.reduce(YMKPoint(latitude: 0, longitude: 0)) { partialResult, point in
+		_ = points.reduce(YMKPoint(latitude: 0, longitude: 0)) { partialResult, point in
             YMKPoint(
                 latitude: partialResult.latitude + point.latitude,
                 longitude: partialResult.longitude + point.longitude

@@ -17,7 +17,7 @@ enum CreateExcursionSettingsSections: Int, CaseIterable {
     var description: String {
         switch self {
         case .selectedPlaces:
-            return "Точки экскурсии"
+            return "Точки маршрута"
         case .addButton:
             return "Описание"
         case .image:

@@ -43,13 +43,13 @@ final class PlugViewController: UIViewController {
     }
 
     private func testToken(completion: @escaping (Result<AuthData, ApiCustomError>) -> Void) {
-        let token = UserDefaults.standard.string(forKey: UserKeys.accessToken.rawValue)
+		_ = UserDefaults.standard.string(forKey: UserKeys.accessToken.rawValue)
         print("[DEBUG] user isLogin: \(UserDefaultsManager.shared.isLogged)")
 
         ApiManager.shared.getMeInfo2(success: { data in
             print("[DEBUG] result: \(data)")
         }, failure: { error in
-            print("[DEBUG] error: \(error)")
+			print("[DEBUG] error: \(error ?? .anotherError)")
         })
     }
 

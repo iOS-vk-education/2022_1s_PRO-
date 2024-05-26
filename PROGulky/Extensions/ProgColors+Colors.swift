@@ -27,6 +27,7 @@ extension ProgColors {
         static let lightText: UIColor = dynamicColor(light: lightTextL, dark: lightTextD)
         static let text: UIColor = dynamicColor(light: textL, dark: textD)
         static let background: UIColor = dynamicColor(light: backgroundL, dark: backgroundD)
+        static let background2: UIColor = dynamicColor(light: background2L, dark: background2D)
         static let lightBackground: UIColor = dynamicColor(light: lightBackgroundL, dark: lightBackgroundD)
         static let primary: UIColor = dynamicColor(light: primaryL, dark: primaryD)
         static let lightPrimary: UIColor = dynamicColor(light: lightPrimaryL, dark: lightPrimaryD)
@@ -54,6 +55,10 @@ private extension ProgColors {
 
     static var backgroundL: UIColor { UIColor(red: 1, green: 1, blue: 1, alpha: 1) }
     static var backgroundD: UIColor { UIColor(red: 0.137, green: 0.113, blue: 0.149, alpha: 1) }
+
+	static var background2L: UIColor { UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1) }
+	static var background2D: UIColor { UIColor(red: 0.137, green: 0.113, blue: 0.149, alpha: 1) }
+
 
     static var lightBackgroundL: UIColor { UIColor(red: 1, green: 1, blue: 1, alpha: 1) }
     static var lightBackgroundD: UIColor { UIColor(red: 0.227, green: 0.196, blue: 0.243, alpha: 1) }

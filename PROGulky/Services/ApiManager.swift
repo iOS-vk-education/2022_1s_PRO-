@@ -19,6 +19,13 @@ enum ApiCustomError: String, Error {
     case dublicateUserError = "Пользователь с таким Email уже существует" // Ошибка регистрации (юзер с такмим email уже существует)
     case badСredentials = "Неверный Email или пароль" // Ошибка логина (ошибка в кредах)
     case networkAccess = "Отсутствует соединение"
+
+	case notMaps = "Приложение Яндекс Карты не установлено"
+}
+
+enum SendImageType {
+	case excursion
+	case place
 }
 
 // MARK: - ApiType
@@ -29,6 +36,7 @@ enum ApiType {
     case removeFavorites(token: String, excursionId: String) // Удалить экскурсию из избранного
     case getFavoritesExcursions(token: String) // Избранные по токену для пользователя
     case getPlaces
+	case getPlace(token: String, placeId: Int)
     case postExcursion(token: String, excursion: ExcursionForPost)
     case getExcursion(token: String, excursionId: Int)
     case getPlaceImage(image: String)
@@ -43,9 +51,11 @@ enum ApiType {
     case uploadFiles(userAvater: UserImageForPost) // Загрузка фото профиля
     case setUserImage(token: String, imageName: String)
     case uploadExcursionImage(token: String)
+	case uploadPlaceImage(token: String)
+	case uploadPlace(_ place: PlaceForPost, token: String)
 
     var baseURLString: String {
-        "http://95.163.236.100:5000"
+        baseURL
     }
 
     var headers: [String: String] {
@@ -60,6 +70,8 @@ enum ApiType {
             return ["Authorization": "Bearer \(token)"]
         case let .getExcursion(token, _):
             return ["Authorization": "Bearer \(token)"]
+        case let .getPlace(token, _):
+            return ["Authorization": "Bearer \(token)"]
         case let .getMeInfo(token):
             return ["Authorization": "Bearer \(token)"]
         case let .delete(token):
@@ -68,8 +80,12 @@ enum ApiType {
             return ["Authorization": "Bearer \(token)"]
         case let .setUserImage(token, _):
             return ["Authorization": "Bearer \(token)"]
-        case let .uploadExcursionImage(token):
+		case let .uploadExcursionImage(token):
             return ["Authorization": "Bearer \(token)"]
+		case let .uploadPlaceImage(token):
+			return ["Authorization": "Bearer \(token)"]
+		case let .uploadPlace(_, token):
+			return ["Authorization": "Bearer \(token)"]
         default:
             return [:]
         }
@@ -95,7 +111,10 @@ enum ApiType {
         case .uploadFiles: return "api/v1/files/user"
         case .setUserImage: return "/api/v1/users/set_image"
         case .uploadExcursionImage: return "api/v1/files/excursion"
-        }
+		case .uploadPlaceImage: return "api/v1/files/place"
+		case .uploadPlace: return "api/v1/places"
+		case let .getPlace(_, id): return "api/v1/places/\(String(id))"
+		}
     }
 
     var requestURL: URLRequest {
@@ -124,7 +143,7 @@ enum ApiType {
         request.allHTTPHeaderFields = headers
 
         switch self {
-        case .getExcursions, .getPlaces, .getExcursion, .getPlaceImage, .getExcursionImage:
+		case .getExcursions, .getPlaces, .getExcursion, .getPlaceImage, .getExcursionImage, .getPlace:
             request.httpMethod = "GET"
             return request
         case .addFavorites, .login, .registration, .updateAccessTokenByRefresh, .rateExcursion:
@@ -138,7 +157,7 @@ enum ApiType {
         case .getFavoritesExcursions:
             request.httpMethod = "GET"
             return request
-        case .postExcursion:
+		case .postExcursion, .uploadPlace:
             request.httpMethod = "POST"
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             return request
@@ -148,7 +167,7 @@ enum ApiType {
         case .delete:
             request.httpMethod = "DELETE"
             return request
-        case .uploadFiles, .uploadExcursionImage:
+		case .uploadFiles, .uploadExcursionImage, .uploadPlaceImage:
             request.httpMethod = "POST"
             return request
         case .setUserImage:
@@ -199,14 +218,9 @@ final class ApiManager: BaseService {
                 completion(.failure(error))
             }
 
-            do {
-                DispatchQueue.main.async {
-                    completion(.success(()))
-                }
-            } catch let jsonError {
-                print("Failed decode error:", jsonError)
-                completion(.failure(jsonError))
-            }
+			DispatchQueue.main.async {
+				completion(.success(()))
+			}
         }
         task.resume()
     }
@@ -225,14 +239,9 @@ final class ApiManager: BaseService {
                 completion(.failure(error))
             }
 
-            do {
-                DispatchQueue.main.async {
-                    completion(.success(()))
-                }
-            } catch let jsonError {
-                print("Failed decode error:", jsonError)
-                completion(.failure(jsonError))
-            }
+			DispatchQueue.main.async {
+				completion(.success(()))
+			}
         }
         task.resume()
     }
@@ -343,7 +352,7 @@ final class ApiManager: BaseService {
                     }
                 } catch let jsonError {
                     DispatchQueue.main.async {
-                        let error = NSError(domain: jsonError.localizedDescription, code: 0)
+						_ = NSError(domain: jsonError.localizedDescription, code: 0)
                         completion(.failure(ApiCustomError.JSONParseError))
                     }
                 }
@@ -469,7 +478,7 @@ final class ApiManager: BaseService {
     }
 
     func sendExcursion(excursion: ExcursionForPost, completion: @escaping (Result<ExcursionAfterPost, Error>) -> Void) {
-        var request = ApiType.postExcursion(token: getAccessToken(), excursion: excursion).request
+		let request = ApiType.postExcursion(token: getAccessToken(), excursion: excursion).request
         let data = try? JSONEncoder().encode(excursion)
         let task = URLSession.shared.uploadTask(with: request, from: data) { data, response, error in
             if let error {
@@ -493,10 +502,101 @@ final class ApiManager: BaseService {
         task.resume()
     }
 
+	func uploadPlace(place: PlaceForPost, completion: @escaping (Result<Bool, Error>) -> Void) {
+		let request = ApiType.uploadPlace(place, token: getAccessToken()).request
+		let data = try? JSONEncoder().encode(place)
+//		request.httpBody = data
+		let task = URLSession.shared.uploadTask(with: request, from: data) { data, response, error in
+			if let error {
+				DispatchQueue.main.async {
+					completion(.failure(error))
+				}
+			}
+			guard let data else { return }
+			do {
+				let places = try JSONDecoder().decode(PlaceAfterPost.self, from: data)
+				DispatchQueue.main.async {
+					completion(.success(true))
+				}
+			} catch let jsonError {
+				print("Failed decode error:", jsonError)
+				DispatchQueue.main.async {
+					completion(.failure(jsonError))
+				}
+			}
+		}
+		task.resume()
+	}
+
+	func getExcursion(excursionId: Int, completion: @escaping (Result<Excursion, ApiCustomError>) -> Void) {
+		let request = ApiType.getExcursion(token: getAccessToken(), excursionId: excursionId).request
+
+		callWebService(
+			request,
+			success: { data in
+				do {
+					let excursion = try JSONDecoder().decode(Excursion.self, from: data)
+					DispatchQueue.main.async {
+						completion(.success(excursion))
+					}
+				} catch let error {
+					print("Failed decode error:", error)
+					DispatchQueue.main.async {
+						completion(.failure(.JSONParseError))
+					}
+				}
+			},
+			failure: { error in
+				DispatchQueue.main.async {
+					completion(.failure(error ?? .anotherError))
+				}
+			}
+		)
+	}
+
     func getExcursion(excursionId: Int) -> AnyPublisher<Excursion, ApiCustomError> {
         let request = ApiType.getExcursion(token: getAccessToken(), excursionId: excursionId).request
         return fetch(request)
-            .retry(3)
+            .mapError { error in
+                print(error.localizedDescription)
+                switch error {
+                case _ as URLError:
+                    return .networkAccess
+                default: return .anotherError
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+	func getPlace(placeId: Int, completion: @escaping (Result<Place, ApiCustomError>) -> Void) {
+		let request = ApiType.getPlace(token: getAccessToken(), placeId: placeId).request
+
+		callWebService(
+			request,
+			success: { data in
+				do {
+					let place = try JSONDecoder().decode(Place.self, from: data)
+					DispatchQueue.main.async {
+						completion(.success(place))
+					}
+				} catch let error {
+					print("Failed decode error:", error)
+					DispatchQueue.main.async {
+						completion(.failure(.JSONParseError))
+					}
+				}
+			},
+			failure: { error in
+				DispatchQueue.main.async {
+					completion(.failure(error ?? .anotherError))
+				}
+			}
+		)
+	}
+
+    func getPlace(id: Int) -> AnyPublisher<Place, ApiCustomError> {
+		let request = ApiType.getPlace(token: getAccessToken(),placeId: id).request
+        return fetch(request)
             .mapError { error in
                 print(error.localizedDescription)
                 switch error {
@@ -596,11 +696,19 @@ final class ApiManager: BaseService {
         }
     }
 
-    func sendExcursionImage(
+    func sendImage(
         image: UIImage,
+		type: SendImageType,
         completion: @escaping (Result<UserImageAfterPost, ApiCustomError>) -> Void
     ) {
-        var request = ApiType.uploadExcursionImage(token: getAccessToken()).request
+		var request: URLRequest
+		switch type {
+		case .excursion:
+			request = ApiType.uploadExcursionImage(token: getAccessToken()).request
+		case .place:
+			request = ApiType.uploadPlaceImage(token: getAccessToken()).request
+		}
+
 
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
@@ -636,7 +744,10 @@ final class ApiManager: BaseService {
 
 // MARK: - BaseService
 
-class BaseService: NSObject {
+class BaseService {
+
+	private let group = DispatchGroup()
+
     // Запрос на API с реквестом, которые создается до запроса и прокидывается сюда
     // для обновления в случае истечения токена
     func callWebService(
@@ -708,14 +819,14 @@ extension BaseService {
 
         // Запрос за новыми токенами по рефреш-токену
         ApiManager.shared.updateAccessTokenByRefresh(
-            completion: { result in
+            completion: { [weak self] result in
                 switch result {
                 case let .success(authData): // При успехе вовзращается объект с AuthData с новой парой токенов
                     UserDefaultsManager.shared.saveUserAuthData(authData: authData) // Сохранение новых токенов
-
+					
                     var requestWithNewToken: URLRequest = request // Модернизация исходного запроса
-                    requestWithNewToken.setValue("Bearer \(self.getAccessToken())", forHTTPHeaderField: "Authorization") // Добавление к исходному запросу нового токена
-                    self.callWebService(requestWithNewToken, success: success, failure: failure)
+					requestWithNewToken.setValue("Bearer \(authData.accessToken ?? "")", forHTTPHeaderField: "Authorization") // Добавление к исходному запросу нового токена
+                    self?.callWebService(requestWithNewToken, success: success, failure: failure)
                 case let .failure(error):
                     UserDefaultsManager.shared.removeUserAuthData() // Удаление данных пользователя
                     failure(error)

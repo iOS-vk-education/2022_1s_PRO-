@@ -13,6 +13,7 @@ protocol SelectedPlacesManagerProtocol {
     var selectedPlaces: [Place] { get }
     func addOrRemovePlace(_ place: Place)
     func removeAll()
+	func updatePlaces(_ items: Set<Place>)
 
     func remove(at index: Int)
     func swap(from: Int, to: Int)
@@ -44,11 +45,22 @@ extension SelectedPlacesManager: SelectedPlacesManagerProtocol {
         }
     }
 
+	func updatePlaces(_ items: Set<Place>) {
+		var sort = 1
+		userSelectedPlaces = items.map({ place in
+			var newPlace = place
+			newPlace.sort = sort
+			sort += 1
+			return newPlace
+		})
+	}
+
     func removeAll() {
         userSelectedPlaces.removeAll()
     }
 
     func remove(at index: Int) {
+		guard index < userSelectedPlaces.count else { return }
         userSelectedPlaces.remove(at: index)
         userSelectedPlaces = userSelectedPlaces.enumerated().map { el in
             var newElement = el.element
@@ -58,7 +70,13 @@ extension SelectedPlacesManager: SelectedPlacesManagerProtocol {
     }
 
     func swap(from: Int, to: Int) {
-        userSelectedPlaces.swapAt(from, to)
+		guard from >= 0,
+			  from < userSelectedPlaces.endIndex,
+			  to >= 0,
+			  to < userSelectedPlaces.endIndex
+		else { return }
+		let place = userSelectedPlaces.remove(at: from)
+        userSelectedPlaces.insert(place, at: to)
         userSelectedPlaces = userSelectedPlaces.enumerated().map { el in
             var newElement = el.element
             newElement.sort = el.offset + 1

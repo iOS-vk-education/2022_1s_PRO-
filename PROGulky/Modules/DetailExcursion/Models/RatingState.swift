@@ -18,11 +18,11 @@ enum RatingState: String {
     var message: String {
         switch self {
         case .alreadyRated:
-            return "Эта экскурсия уже была оценена. Повторная оценка невозможна"
+            return "Эта маршрут уже был оценен. Повторная оценка невозможна"
         case .success:
-            return "Экскурсия успешно оценена"
+            return "Маршрут успешно оценен"
         case .notYet:
-            return "Оцените экскурсию"
+            return "Оцените маршрут"
         }
     }
 }

@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - CustomTextField
 
-class CustomTextField: UITextField {
+final class CustomTextField: UITextField {
     private var security = Bool()
     private var name = String()
 
@@ -33,7 +33,7 @@ class CustomTextField: UITextField {
         clearButtonMode = .always
         isSecureTextEntry = security
         autocapitalizationType = .none
-        font = UIFont.systemFont(ofSize: 14)
+		font = UIFont.systemFont(ofSize: 16, weight: .medium)
         backgroundColor = .prog.Dynamic.background
         layer.borderColor = UIColor.lightGray.cgColor
         leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: frame.height))

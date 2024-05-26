@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - VerticalAlignedLabel
 
-class VerticalAlignedLabel: UILabel {
+final class VerticalAlignedLabel: UILabel {
     override func drawText(in rect: CGRect) {
         var newRect = rect
         switch contentMode {

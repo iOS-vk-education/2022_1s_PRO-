@@ -23,9 +23,10 @@ final class TitleCell: UITableViewCell {
         titleField.layer.masksToBounds = true // Убирает дефолтную рамку
         titleField.borderStyle = UITextField.BorderStyle.roundedRect
         titleField.placeholder = AddExcursionConstants.TitleField.placeholder
-        titleField.layer.cornerRadius = AddExcursionConstants.TitleField.cornerRadius
+//        titleField.layer.cornerRadius = AddExcursionConstants.TitleField.cornerRadius
         titleField.returnKeyType = .done
         titleField.addDoneButtonOnKeyboard()
+		titleField.backgroundColor = .systemGray6
     }
 
     func setupConstraints() {

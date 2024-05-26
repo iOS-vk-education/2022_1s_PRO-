@@ -6,8 +6,7 @@
 //
 
 import UIKit
-import SDWebImage
-
+import Kingfisher
 // MARK: - ExcursionCell
 
 final class ExcursionCell: UITableViewCell {
@@ -71,18 +70,19 @@ final class ExcursionCell: UITableViewCell {
     }
 
     private func setupImage(with image: String?) {
-        if let image = image {
-            let imageURL = "\(ExcursionsListConstants.Api.imageURL)/\(image)"
-            excursionImageView.sd_setImage(with: URL(string: imageURL), placeholderImage: UIImage(named: "placeholderImage"))
-        } else {
-            excursionImageView.image = UIImage(named: "placeholderImage")
-        }
+		let placeholder = UIImage(systemName: "photo")?.withTintColor(.gray, renderingMode: .alwaysTemplate)
+//        if let image = image {
+		let imageURL = "\(ExcursionsListConstants.Api.imageURL)/\(image ?? "")"
+		excursionImageView.kf.setImage(with: URL(string: imageURL), placeholder: placeholder)
+//        } else {
+//			excursionImageView.image = placeholder
+//        }
     }
 
     private func setupOwnerImage(with image: String?) {
         if let image = image {
             let imageURL = "\(ExcursionsListConstants.Api.ownerImageURL)/\(image)"
-            excursionOwnerImage.sd_setImage(with: URL(string: imageURL), placeholderImage: UIImage(systemName: "person.fill"))
+			excursionOwnerImage.kf.setImage(with: URL(string: imageURL), placeholder: UIImage(systemName: "person.fill"))
         } else {
             excursionOwnerImage.image = UIImage(systemName: "person.fill")
         }

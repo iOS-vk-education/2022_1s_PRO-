@@ -84,6 +84,7 @@ extension ExcursionListCoordinator: AddExcursionModuleOutput {
         let addPlaceViewModel = AddPlaceViewModel(moduleOutput: self)
         let addPlaceView = AddPlaceView(viewModel: addPlaceViewModel)
         let hosting = UIHostingController(rootView: addPlaceView)
+//		hosting.navigationController?.navigationBar.
         rootNavigationController.present(hosting, animated: true)
     }
 }
@@ -94,6 +95,6 @@ extension ExcursionListCoordinator: AppPlaceViewModuleOutput {
     func addPlaceViewModuleWantsToClose() {
         guard let addExcursionViewController: AddExcursionViewInput = rootNavigationController.topViewController
             as? AddExcursionViewController else { return }
-        addExcursionViewController.reload()
+        addExcursionViewController.reload(false)
     }
 }

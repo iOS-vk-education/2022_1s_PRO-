@@ -17,17 +17,20 @@ protocol AppPlaceViewModuleOutput: AnyObject {
 
 final class AddPlaceViewModel: ObservableObject {
     @Published var places: [Place] = .init()
-    @Published var selectedPlaces = [Place]()
+    @Published var selectedPlaces = Set<Place>()
     private let apiManager = ApiManager.shared
     private let selectedPlacesManager = SelectedPlacesManager.sharedInstance
     private weak var moduleOutput: AppPlaceViewModuleOutput?
 
-    init(moduleOutput: AppPlaceViewModuleOutput) {
-        obtainPlaces()
-        checkSelectedPlaces()
+    init(moduleOutput: AppPlaceViewModuleOutput?) {
+		reload()
         self.moduleOutput = moduleOutput
     }
 
+	func reload() {
+		obtainPlaces()
+		checkSelectedPlaces()
+	}
     private func obtainPlaces() {
         apiManager.getPlaces { result in
             switch result {
@@ -40,7 +43,7 @@ final class AddPlaceViewModel: ObservableObject {
     }
 
     private func checkSelectedPlaces() {
-        selectedPlaces = selectedPlacesManager.selectedPlaces
+        selectedPlaces = Set(selectedPlacesManager.selectedPlaces)
     }
 
     func selectPlace(place: Place) {
@@ -49,6 +52,7 @@ final class AddPlaceViewModel: ObservableObject {
     }
 
     func viewWillDisappear() {
+//		selectedPlacesManager.updatePlaces(selectedPlaces)
         moduleOutput?.addPlaceViewModuleWantsToClose()
     }
 }

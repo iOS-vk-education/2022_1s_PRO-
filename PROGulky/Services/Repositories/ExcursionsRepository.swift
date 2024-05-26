@@ -90,26 +90,33 @@ final class ExcursionsRepository {
         )
     }
 
-    public func addFavouriveExcursion(with excursion: Excursion) {
+    public func addFavouriveExcursion(with excursionInitial: Excursion) {
         guard let userId = UserService.shared.userId else { return }
+		ApiManager.shared.getExcursion(excursionId: excursionInitial.id) { [weak self] result in
+			switch result {
+			case .success(let excursion):
+				CoreDataManager.shared.addFavouriteExcursion(
+					Int16(excursion.id),
+					excursion.title,
+					excursion.description,
+					excursion.image,
+					excursion.rating ?? 0,
+					Int16(excursion.duration),
+					excursion.distance,
+					Int16(excursion.numberOfPoints),
+					Int16(excursion.owner.id),
+					excursion.owner.name,
+					excursion.owner.image,
+					Int16(excursion.owner.role.id),
+					excursion.owner.role.value,
+					excursion.owner.role.description,
+					Int16(userId)
+				)
+			case .failure(let failure):
+				<#code#>
+			}
+		}
 
-        CoreDataManager.shared.addFavouriteExcursion(
-            Int16(excursion.id),
-            excursion.title,
-            excursion.description,
-            excursion.image,
-            excursion.rating ?? 0,
-            Int16(excursion.duration),
-            excursion.distance,
-            Int16(excursion.numberOfPoints),
-            Int16(excursion.owner.id),
-            excursion.owner.name,
-            excursion.owner.image,
-            Int16(excursion.owner.role.id),
-            excursion.owner.role.value,
-            excursion.owner.role.description,
-            Int16(userId)
-        )
     }
 
     public func removeFavouriveExcursion(with excursionId: Int) {

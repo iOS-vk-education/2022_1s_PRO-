@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Place
 
-struct Place: Codable, Identifiable {
+struct Place: Codable, Identifiable, Hashable {
     var id: Int?
     var sort: Int?
     let title: String

@@ -32,6 +32,7 @@ final class AddExcursionDescriptionCell: UITableViewCell {
         descriptionField.layer.cornerRadius = AddExcursionConstants.DescriptionField.cornerRadius
         descriptionField.font = UIFont.systemFont(ofSize: 15)
         descriptionField.addDoneButtonOnKeyboard()
+		descriptionField.backgroundColor = .systemGray6
     }
 
     func setupConstraints() {

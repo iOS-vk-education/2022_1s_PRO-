@@ -13,7 +13,7 @@ struct AddExcursionConstants {
     }
 
     enum NavBar {
-        static let title: String = "Создать экскурсию"
+        static let title: String = "Создать маршрут"
         static let backgroundColor: UIColor = .prog.Dynamic.lightBackground
         static let rightBarButtonItemText: String = "Сохранить"
     }
@@ -36,7 +36,7 @@ struct AddExcursionConstants {
         static let marginTop: CGFloat = 10
         static let textColor: UIColor = .gray
         static let cornerRadius: Double = 12.0
-        static let minHeight: CGFloat = 60
+        static let minHeight: CGFloat = 120
         static let placeholder = "Описание"
     }
 
@@ -57,23 +57,23 @@ struct AddExcursionConstants {
                 static let marginLeft: CGFloat = 10
                 static let width: CGFloat = 200
                 static let font = UIFont.systemFont(ofSize: 17, weight: UIFont.Weight.medium)
-                static let YOffset: CGFloat = -10
-                static let numberOfLines = 1
+                static let YOffset: CGFloat = 8
+                static let numberOfLines = 2
                 static let trailing: CGFloat = 40
             }
 
             enum Subtitle {
                 static let marginLeft: CGFloat = 10
-                static let marginTop: CGFloat = 3
+                static let marginTop: CGFloat = 4
                 static let font = UIFont.systemFont(ofSize: 14, weight: UIFont.Weight.regular)
                 static let textColor = UIColor.gray
-                static let numberOfLines = 1
+                static let numberOfLines = 3
             }
         }
 
         enum AddPlaceButtonCell {
             static let reuseId = "addButtonCell"
-            static let backgroundColor = UIColor.prog.Dynamic.lightBackground
+            static let backgroundColor = UIColor.prog.Dynamic.primary
 
             enum Image {
                 static let marginLeft: CGFloat = 12
@@ -88,7 +88,7 @@ struct AddExcursionConstants {
     }
 
     enum Api {
-        static let baseURL: String = "http://95.163.236.100:5000"
-        static let imageURL: String = "\(baseURL)/images/places"
+        static let baseURL: String = GlobalConstants.baseURL
+		static let imageURL: String = "\(baseURL)/images/places"
     }
 }

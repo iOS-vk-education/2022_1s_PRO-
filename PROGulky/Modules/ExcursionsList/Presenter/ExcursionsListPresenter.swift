@@ -97,6 +97,10 @@ extension ExcursionsListPresenter: ExcursionsListModuleInput {
 // MARK: ExcursionsListViewOutput
 
 extension ExcursionsListPresenter: ExcursionsListViewOutput {
+	func reload() {
+		LocationManager.shared.requestLocation()
+		interactor.loadExcursionsList()
+	}
     func didDistanceFilterButtonTapped(with title: String) {
         guard let selectedParameter = DistanceFilter(rawValue: title) else { return }
         selectedDistance = selectedParameter

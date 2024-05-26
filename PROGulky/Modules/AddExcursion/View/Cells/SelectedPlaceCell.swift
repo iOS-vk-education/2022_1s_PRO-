@@ -16,8 +16,11 @@ final class SelectedPlaceCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        addSubviews(sort, title, subtitle)
-
+		addSubviews(
+			sort.prepareForAutoLayout(),
+			title.prepareForAutoLayout(),
+			subtitle.prepareForAutoLayout()
+		)
         setupUI()
         setupConstraints()
     }
@@ -31,23 +34,22 @@ final class SelectedPlaceCell: UITableViewCell {
         sort.text = "\(place.sort ?? 0)"
         title.text = place.title
         subtitle.text = place.address
+		layoutIfNeeded()
     }
 
     // MARK: configs styles
 
     func updateSortConstraint(isEditing: Bool) {
-        sort.snp.updateConstraints { make in
-            if isEditing {
-                make.leading.equalToSuperview()
-                    .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.shiftOffset)
-            } else {
-                make.leading.equalToSuperview()
-                    .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.marginLeft)
-            }
-        }
-        layoutIfNeeded()
-        layoutSubviews()
-        updateConstraints()
+//        sort.snp.updateConstraints { make in
+//            if isEditing {
+//                make.leading.equalToSuperview()
+//                    .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.shiftOffset)
+//            } else {
+//                make.leading.equalToSuperview()
+//                    .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.marginLeft)
+//            }
+//        }
+//        layoutIfNeeded()
     }
 
     private func setupUI() {
@@ -56,6 +58,8 @@ final class SelectedPlaceCell: UITableViewCell {
         configureSortLabel()
         configureTitleLabel()
         configureSubtitleLabel()
+		title.setContentHuggingPriority(.defaultHigh, for: .vertical)
+		subtitle.setContentHuggingPriority(.defaultLow, for: .vertical)
     }
 
     private func configureSortLabel() {
@@ -75,18 +79,34 @@ final class SelectedPlaceCell: UITableViewCell {
     // MARK: constraints
 
     private func setupConstraints() {
-        setSortLabelConstraint()
-        setTitleLabelConstraints()
-        setSubtitleLabelConstraint()
+//        setSortLabelConstraint()
+//        setTitleLabelConstraints()
+//        setSubtitleLabelConstraint()
+
+		sort.widthAnchor ~= AddExcursionConstants.TableView.SelectedPlaceCell.Sort.width
+		sort.centerYAnchor ~= centerYAnchor
+		sort.leadingAnchor ~= leadingAnchor + AddExcursionConstants.TableView.SelectedPlaceCell.Sort.marginLeft
+
+		title.topAnchor ~= topAnchor + AddExcursionConstants.TableView.SelectedPlaceCell.Title.YOffset
+		title.leadingAnchor ~= sort.trailingAnchor + AddExcursionConstants.TableView.SelectedPlaceCell.Title.marginLeft
+		title.trailingAnchor ~= trailingAnchor - AddExcursionConstants.TableView.SelectedPlaceCell.Title.trailing
+
+		subtitle.leadingAnchor ~= title.leadingAnchor
+		subtitle.trailingAnchor ~= title.trailingAnchor
+		subtitle.topAnchor ~= title.bottomAnchor + AddExcursionConstants.TableView.SelectedPlaceCell.Subtitle.marginTop
+		subtitle.bottomAnchor ~= bottomAnchor - 8
+
+
     }
 
     private func setSortLabelConstraint() {
-        sort.snp.makeConstraints { make in
-            make.width.equalTo(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.width)
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview()
-                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.marginLeft)
-        }
+
+//        sort.snp.makeConstraints { make in
+//            make.width.equalTo(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.width)
+//            make.centerY.equalToSuperview()
+//            make.leading.equalToSuperview()
+//                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Sort.marginLeft)
+//        }
 //        sort.translatesAutoresizingMaskIntoConstraints = false
 //        sort.widthAnchor.constraint(equalToConstant: AddExcursionConstants.TableView.SelectedPlaceCell.Sort.width).isActive = true
 //        sort.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
@@ -94,14 +114,15 @@ final class SelectedPlaceCell: UITableViewCell {
     }
 
     private func setTitleLabelConstraints() {
-        title.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Title.YOffset)
-            make.leading.equalTo(self.sort.snp.trailing)
-                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Title.marginLeft)
-            make.trailing.equalToSuperview()
-                .offset(-AddExcursionConstants.TableView.SelectedPlaceCell.Title.trailing)
-        }
+
+//        title.snp.makeConstraints { make in
+//            make.centerY.equalToSuperview()
+//                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Title.YOffset)
+//            make.leading.equalTo(self.sort.snp.trailing)
+//                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Title.marginLeft)
+//            make.trailing.equalToSuperview()
+//                .offset(-AddExcursionConstants.TableView.SelectedPlaceCell.Title.trailing)
+//        }
 
 //        title.translatesAutoresizingMaskIntoConstraints = false
 //        title.centerYAnchor.constraint(equalTo: centerYAnchor, constant: AddExcursionConstants.TableView.SelectedPlaceCell.Title.YOffset).isActive = true
@@ -110,14 +131,15 @@ final class SelectedPlaceCell: UITableViewCell {
     }
 
     private func setSubtitleLabelConstraint() {
-        subtitle.snp.makeConstraints { make in
-            make.leading.equalTo(self.sort.snp.trailing)
-                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Title.marginLeft)
-            make.trailing.equalToSuperview()
-                .offset(-AddExcursionConstants.TableView.SelectedPlaceCell.Title.trailing)
-            make.top.equalTo(self.title.snp.bottom)
-                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Subtitle.marginTop)
-        }
+
+//        subtitle.snp.makeConstraints { make in
+//            make.leading.equalTo(self.sort.snp.trailing)
+//                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Title.marginLeft)
+//            make.trailing.equalToSuperview()
+//                .offset(-AddExcursionConstants.TableView.SelectedPlaceCell.Title.trailing)
+//            make.top.equalTo(self.title.snp.bottom)
+//                .offset(AddExcursionConstants.TableView.SelectedPlaceCell.Subtitle.marginTop)
+//        }
 
 //        subtitle.translatesAutoresizingMaskIntoConstraints = false
 //        subtitle.leadingAnchor.constraint(equalTo: sort.trailingAnchor, constant: AddExcursionConstants.TableView.SelectedPlaceCell.Subtitle.marginLeft).isActive = true

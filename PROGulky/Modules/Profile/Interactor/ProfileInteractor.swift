@@ -35,7 +35,7 @@ extension ProfileInteractor: ProfileInteractorInput {
     func deleteAccount() {
         UserDefaultsManager.shared.removeUserAuthData()
         let token = UserService.shared.userToken
-        UserAuthService.shared.deleteAccount(completion: { [weak self] result in
+        UserAuthService.shared.deleteAccount(completion: { result in
             switch result {
             case let .success(userData):
                 print("[DEBUG] \(userData)")
@@ -50,7 +50,7 @@ extension ProfileInteractor: ProfileInteractorInput {
             switch result {
             case let .success(success):
                 self.output?.successLoadImage(with: success.fileName)
-            case let .failure(failure):
+			case .failure(_):
                 self.output?.gotError()
             }
         }

@@ -34,7 +34,7 @@ final class AddExcursionPresenter {
         self.moduleOutput = moduleOutput
     }
 
-    private func calculateDistanceAndDuration() {
+	private func calculateDistanceAndDuration(_ hasChanges: Bool) {
         let lastWayPointNumber = selectedPlaces.count - 1
 
         let requestPoints = selectedPlaces.enumerated().map { element in
@@ -54,10 +54,10 @@ final class AddExcursionPresenter {
             with: requestPoints,
             timeOptions: YMKTimeOptions(departureTime: Date(), arrivalTime: nil),
             routeHandler: { [weak self] (routeResponse: [YMKMasstransitRoute]?, error: Error?) in
-                if let error = error {
+				if error != nil {
                     self?.duration = 0
                     self?.distance = 0
-                    self?.reloadHeaderView()
+                    self?.reloadHeaderView(hasChanges)
                     return
                 }
                 guard let route = routeResponse?.first else {
@@ -66,13 +66,17 @@ final class AddExcursionPresenter {
 
                 self?.distance = route.metadata.weight.walkingDistance.value / 1000
                 self?.duration = Int(route.metadata.weight.time.value / 60)
-                self?.reloadHeaderView()
+                self?.reloadHeaderView(hasChanges)
             }
         )
     }
 
-    private func reloadHeaderView() {
-        view.reloadTable()
+	private func reloadHeaderView(_ hasChanges: Bool) {
+		if hasChanges {
+			view.reloadHeaderView()
+		} else {
+			view.reloadPlaces()
+		}
     }
 }
 
@@ -116,6 +120,7 @@ extension AddExcursionPresenter: AddExcursionViewOutput {
 
     func removePlace(at indexPath: IndexPath) {
         selectedPlacesManager.remove(at: indexPath.row)
+		reloadData(false)
     }
 
     func swapPlaces(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -123,8 +128,8 @@ extension AddExcursionPresenter: AddExcursionViewOutput {
                                    to: destinationIndexPath.row)
     }
 
-    func reloadData() {
-        calculateDistanceAndDuration()
+	func reloadData(_ hasInnerChanges: Bool) {
+        calculateDistanceAndDuration(hasInnerChanges)
     }
 }
 

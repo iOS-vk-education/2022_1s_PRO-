@@ -5,7 +5,7 @@
 //  Created by SemyonPyatkov on 31/10/2022.
 //
 
-import SDWebImageSwiftUI
+import Kingfisher
 import SwiftUI
 import MapKit
 import SkeletonUI
@@ -19,8 +19,8 @@ struct DetailExcursionView: View {
         static let description = "Описание"
         static let buttonImageName = "heart"
         static let backButtonImageName = "chevron.left"
-        static let placesTitle = "Точки экскурсии"
-        static let ratePlease = "Оцените экскурсию"
+        static let placesTitle = "Точки маршрута"
+        static let ratePlease = "Оцените маршрут"
     }
 
     @ObservedObject private var viewModel: DetailExcursionViewModel
@@ -36,6 +36,9 @@ struct DetailExcursionView: View {
 
     private var backgroundColor: Color {
         colorScheme == .light ? .backgroundL : .backgroundD
+    }
+	private var textColor: Color {
+        colorScheme == .light ? .black : .white
     }
 
     private var shadowColor: Color {
@@ -66,6 +69,20 @@ struct DetailExcursionView: View {
         .background(backgroundColor)
         .navigationBarBackButtonHidden()
         .navigationBarItems(leading: backButton)
+		.toolbar{
+			ToolbarItem(placement: .topBarTrailing) {
+				Button {
+					viewModel.openUrl()
+				} label: {
+					Image(systemName: "map")
+						.symbolVariant(.circle.fill)
+						.aspectRatio(contentMode: .fill)
+						.symbolRenderingMode(.palette)
+						.foregroundStyle(.white, .black)
+						.fontWeight(.bold)
+				}
+			}
+		}
     }
 
     @ViewBuilder
@@ -119,9 +136,7 @@ struct DetailExcursionView: View {
 
     @ViewBuilder
     private var imageWithLikeButton: some View {
-        WebImage(
-            url: URL(string: "\(Constants.imageURL)/\(viewModel.excursion.image)")
-        )
+		KFImage(URL(string: "\(Constants.imageURL)/\(viewModel.excursion.image)"))
         .resizable()
         .padding(.horizontal, -16)
         .skeleton(with: viewModel.loading)
@@ -158,11 +173,11 @@ struct DetailExcursionView: View {
             HStack {
                 Text(viewModel.excursion.infoViewModel.title)
                     .font(.title2.weight(.heavy))
+				Spacer()
                 Image(systemName: Constants.ratingImageName)
                     .foregroundColor(.yellow)
                 Text(viewModel.excursion.infoViewModel.rating)
                     .font(.body.weight(.medium))
-                Spacer()
             }
             .padding(.bottom, 16)
             .skeleton(with: viewModel.loading)
@@ -192,21 +207,29 @@ struct DetailExcursionView: View {
                 .skeleton(with: viewModel.loading)
             divider
             ForEach(viewModel.excursion.places) { place in
-                HStack {
-                    Text(place.sort.formatted())
-                        .font(.callout.weight(.medium))
-                        .padding(.trailing, 16)
+				NavigationLink {
+					DetailPlaceView(placeId: place.id)
+				} label: {
+					HStack {
+						Text(place.sort.formatted())
+							.font(.callout.weight(.medium))
+							.padding(.trailing, 16)
 
-                    VStack(alignment: .leading) {
-                        Text(place.title)
-                            .font(.callout.weight(.medium))
-                            .bold()
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.leading)
-                        Text(place.subtitle)
-                            .font(.subheadline.weight(.light))
-                    }
-                }.padding([.vertical], 8)
+						VStack(alignment: .leading) {
+							Text(place.title)
+								.font(.callout.weight(.medium))
+								.bold()
+								.lineLimit(nil)
+								.multilineTextAlignment(.leading)
+							Text(place.subtitle)
+								.font(.subheadline.weight(.light))
+								.multilineTextAlignment(.leading)
+						}
+					}
+					.foregroundColor(textColor)
+				}
+				.padding([.vertical], 8)
+
                 divider
             }
         }

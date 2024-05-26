@@ -46,7 +46,7 @@ final class AddPlaceCell: UITableViewCell {
     private func setTitleLabelConstraints() {
         title.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.height.equalTo(44)
+            make.height.equalTo(50)
         }
     }
 }

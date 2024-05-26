@@ -20,14 +20,15 @@ protocol AddExcursionViewOutput: AnyObject {
     func removePlace(at indexPath: IndexPath)
     func swapPlaces(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath)
     func didTapSaveButton(name: String, description: String, image: UIImage)
-    func reloadData()
+	func reloadData(_ hasInnerChanges: Bool)
 }
 
 // MARK: - AddExcursionViewInput
 
 protocol AddExcursionViewInput: AnyObject {
-    func reload()
-    func reloadTable()
+    func reload(_: Bool)
+    func reloadHeaderView()
     func showAuthView()
     func showErrorView()
+	func reloadPlaces()
 }

@@ -18,6 +18,7 @@ final class ExcursionsListViewController: CustomViewController {
     private var greetingMessageView = GreetingMessageView()
     private let searchController = UISearchController()
     private var excursionsTable = UITableView(frame: .zero, style: .plain)
+	private let refreshControl = UIRefreshControl()
     private let emptyListMessageView = ExcursionsListMessageView(frame: .zero)
 
     override func viewDidLoad() {
@@ -29,6 +30,20 @@ final class ExcursionsListViewController: CustomViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         output.didLoadView()
+		let rightBarButtonAddExcursionItem = UIBarButtonItem(
+			barButtonSystemItem: .add,
+			target: self,
+			action: #selector(didTapAddButton)
+		)
+
+		let rightBarFilterButtonItem = UIBarButtonItem(customView: filterBadgeButton)
+		filterBadgeButton.addTarget(self, action: #selector(handleShowBottomSheet), for: .touchUpInside)
+
+		var rightButtonItems = [rightBarFilterButtonItem]
+		if UserDefaultsManager.shared.isGuide {
+			rightButtonItems.append(rightBarButtonAddExcursionItem)
+		}
+		navigationItem.rightBarButtonItems = rightButtonItems
     }
 
     private func setupGreetingMessaageText(with viewModel: GreetingViewModel) {
@@ -44,12 +59,13 @@ final class ExcursionsListViewController: CustomViewController {
 
     func reload() {
         excursionsTable.reloadData()
+		excursionsTable.refreshControl?.endRefreshing()
     }
 
     private func setupSearchController() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Найти экскурсию"
+        searchController.searchBar.placeholder = "Найти маршрут"
         searchController.searchBar.setValue("Отмена", forKey: "cancelButtonText")
 
         definesPresentationContext = true
@@ -67,7 +83,7 @@ final class ExcursionsListViewController: CustomViewController {
         navigationController?.view.backgroundColor = ExcursionsListConstants.NavBar.backgroundColor
 
         // TODO: Сделать показ только для пользователя с определенной ролью
-        let rightBarButtonItem = UIBarButtonItem(
+        let rightBarButtonAddExcursionItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
             action: #selector(didTapAddButton)
@@ -76,7 +92,11 @@ final class ExcursionsListViewController: CustomViewController {
         let rightBarFilterButtonItem = UIBarButtonItem(customView: filterBadgeButton)
         filterBadgeButton.addTarget(self, action: #selector(handleShowBottomSheet), for: .touchUpInside)
 
-        navigationItem.rightBarButtonItem = rightBarFilterButtonItem
+		var rightButtonItems = [rightBarFilterButtonItem]
+		if UserDefaultsManager.shared.isGuide {
+			rightButtonItems.append(rightBarButtonAddExcursionItem)
+		}
+        navigationItem.rightBarButtonItems = rightButtonItems
 
         let leftBarButtonItem = UIBarButtonItem(customView: greetingMessageView)
         navigationItem.leftBarButtonItem = leftBarButtonItem
@@ -89,11 +109,10 @@ final class ExcursionsListViewController: CustomViewController {
 
     @objc
     private func handleShowBottomSheet() {
-        let viewController = ExcursionsListFiltersViewController(initialHeight: 500, delegate: self)
+        let viewController = ExcursionsListFiltersViewController(initialHeight: 450, delegate: self)
         bottomSheetTransitioningDelegate = BottomSheetTransitioningDelegate(factory: self)
         viewController.modalPresentationStyle = .custom
         viewController.transitioningDelegate = bottomSheetTransitioningDelegate
-
         present(viewController, animated: true, completion: nil)
     }
 
@@ -107,7 +126,7 @@ final class ExcursionsListViewController: CustomViewController {
         view.addSubview(excursionsTable)
         excursionsTable.backgroundColor = .prog.Dynamic.background
         excursionsTable.keyboardDismissMode = .onDrag
-
+		excursionsTable.refreshControl = refreshControl
         excursionsTable.layoutMargins = UIEdgeInsets(
             top: ExcursionsListConstants.Screen.paddingTop,
             left: ExcursionsListConstants.Screen.padding,
@@ -119,7 +138,14 @@ final class ExcursionsListViewController: CustomViewController {
         setTableViewDelegate()
         excursionsTable.register(ExcursionCell.self, forCellReuseIdentifier: ExcursionsListConstants.ExcursionCell.reuseId)
         setTableViewConstraints()
+
+		refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
     }
+
+	@objc
+	private func refresh() {
+		output.reload()
+	}
 
     private func setTableViewDelegate() {
         excursionsTable.delegate = self

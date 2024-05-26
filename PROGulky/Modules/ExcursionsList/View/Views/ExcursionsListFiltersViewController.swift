@@ -84,7 +84,7 @@ final class ExcursionsListFiltersViewController: UIViewController {
     private let ratingStackView = UIStackView() // Стек вью фильтра
 
     private let submitButton = UIButton()
-
+	private let containerView = UIView()
     private var currentHeight: CGFloat {
         didSet {
             updatePreferredContentSize()
@@ -128,7 +128,8 @@ final class ExcursionsListFiltersViewController: UIViewController {
     private func setupSubviews() {
         view.backgroundColor = .prog.Dynamic.background
         view.addSubview(_scrollView)
-
+//		_scrollView.addSubview(containerView)
+		_scrollView.contentInset.top = -90
         configureScrollView()
         configureDistanceLabel()
         configureDistanceStackView()
@@ -226,6 +227,7 @@ final class ExcursionsListFiltersViewController: UIViewController {
     private func setScrollViewConstratints() {
         _scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+//			make.center.equalToSuperview()
         }
     }
 

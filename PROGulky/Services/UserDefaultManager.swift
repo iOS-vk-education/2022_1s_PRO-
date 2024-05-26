@@ -64,6 +64,17 @@ final class UserDefaultsManager: UserDefaultsLoginServiceProtocol {
         return isAuth == "1"
     }
 
+	var isGuide: Bool {
+		guard
+			isLogged,
+			defaults.string(forKey: UserKeys.role.rawValue) != nil,
+			let role = defaults.string(forKey: UserKeys.role.rawValue)
+		else {
+			return false
+		}
+		return role == "Экскурсовод" || role == "Администратор"
+	}
+
 //    // метод мне не нравится
 //    func isLogged() -> Bool {
 //        guard defaults.string(forKey: UserKeys.isLogin.rawValue) != nil else {
@@ -87,12 +98,14 @@ final class UserDefaultsManager: UserDefaultsLoginServiceProtocol {
         let email = defaults.string(forKey: UserKeys.email.rawValue)
         let name = defaults.string(forKey: UserKeys.name.rawValue)
         let displayRole = defaults.string(forKey: UserKeys.role.rawValue)
+		let image = defaults.string(forKey: UserKeys.image.rawValue)
 
         let userData = UserData(
             name: name ?? "",
             email: email ?? "",
             token: token ?? "",
-            role: displayRole ?? ""
+            role: displayRole ?? "",
+			image: image
         )
         return userData
     }

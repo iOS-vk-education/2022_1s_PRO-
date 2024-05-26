@@ -70,4 +70,5 @@ struct UserData {
     let email: String
     let token: String
     let role: String
+	let image: String?
 }

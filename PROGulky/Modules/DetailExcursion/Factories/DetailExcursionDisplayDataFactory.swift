@@ -17,11 +17,20 @@ protocol DetailExcursionDisplayDataFactoryProtocol {
 
 // MARK: - DetailExcursionDisplayDataFactory
 
-class DetailExcursionDisplayDataFactory: DetailExcursionDisplayDataFactoryProtocol {
+final class DetailExcursionDisplayDataFactory: DetailExcursionDisplayDataFactoryProtocol {
     func getPlacesCoordinates(_ places: [PreviewPlace]) -> [PlaceCoordinates] {
-        places.map {
-            PlaceCoordinates(latitude: $0.latitude, longitude: $0.longitude)
-        }
+		places
+			.sorted(by: { lhs, rhs in
+				guard let first = lhs.sort,
+					  let second = rhs.sort
+				else {
+					return lhs.id < rhs.id
+				}
+				return first < second
+			})
+			.map {
+				PlaceCoordinates(latitude: $0.latitude, longitude: $0.longitude)
+			}
     }
 
     func setupViewModel(excursion: Excursion, isFavourite: Bool) -> DetailExcursion {
@@ -31,12 +40,14 @@ class DetailExcursionDisplayDataFactory: DetailExcursionDisplayDataFactoryProtoc
             description: excursion.description,
             infoViewModel: infoViewModel(excursion),
             isLiked: isFavourite,
-            places: excursion.places.map(converPlace)
+			places: excursion.places.map(converPlace).sorted(by: { first, second in
+				first.sort < second.sort
+			})
         )
     }
 
     private func converPlace(_ place: PreviewPlace) -> PreviewPlaceViewModel {
-        PreviewPlaceViewModel(sort: place.sort ?? 0, title: place.title, subtitle: place.address)
+		PreviewPlaceViewModel(id: place.id, sort: place.sort ?? 0, title: place.title, subtitle: place.address)
     }
 
     private func infoViewModel(_ excursion: Excursion) -> DetailExcursionInfoModel {

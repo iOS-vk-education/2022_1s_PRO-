@@ -18,6 +18,7 @@ final class AddExcursionViewController: UIViewController {
     private var excursionDescription: String?
     private var image: UIImage?
     private var tableView = UITableView(frame: .zero, style: .insetGrouped)
+	private var isEditingTable = false
 
     // MARK: Lifecycle
 
@@ -27,9 +28,14 @@ final class AddExcursionViewController: UIViewController {
         setupConstraints()
     }
 
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		SelectedPlacesManager.sharedInstance.removeAll()
+	}
+
     private func setupUI() {
         view.addSubview(tableView)
-        view.backgroundColor = .prog.Dynamic.background
+        view.backgroundColor = .prog.Dynamic.background2
 
         configureNavBar()
         configureTableView()
@@ -61,8 +67,18 @@ final class AddExcursionViewController: UIViewController {
             !name.isEmpty,
             let description = excursionDescription,
             !description.isEmpty,
-            output.selectedPlacesCount != 0,
+            output.selectedPlacesCount >= 2,
             let image else {
+
+			let errorAlert = UIAlertController(
+				title: "Заполните все поля",
+				message: "Должно быть как минимум 2 точки маршрута",
+				preferredStyle: .alert
+			)
+			errorAlert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+				errorAlert.dismiss(animated: true, completion: nil)
+			}))
+			present(errorAlert, animated: true, completion: nil)
             return
         }
         output.didTapSaveButton(name: name, description: description, image: image)
@@ -123,15 +139,38 @@ final class AddExcursionViewController: UIViewController {
 // MARK: AddExcursionViewInput
 
 extension AddExcursionViewController: AddExcursionViewInput {
-    func reloadTable() {
+	func reloadPlaces() {
+		if output.selectedPlacesCount == 0 {
+			tableView.isEditing = false
+		}
+		tableView.reloadData()
+	}
+
+    func reloadHeaderView() {
         if output.selectedPlacesCount == 0 {
             tableView.isEditing = false
         }
-        tableView.reloadData()
+//        tableView.reloadData()
+
+		guard let header = tableView.headerView(forSection: CreateExcursionSettingsSections.selectedPlaces.rawValue)
+				as? AddExcursionTableViewHeader
+		else { return }
+		header.configureLabel(distance: output.routeDistance, duration: output.routeDuration)
+//		header.layoutIfNeeded()
+//		var indexPathsNeedToReload = [IndexPath]()
+//
+//		for cell in tableView.visibleCells {
+//			if let indexPath: IndexPath = tableView.indexPath(for: cell),
+//			   indexPath.section == CreateExcursionSettingsSections.selectedPlaces.rawValue {
+//				indexPathsNeedToReload.append(indexPath)
+//			}
+//		}
+//
+//		tableView.reloadRows(at: indexPathsNeedToReload, with: .none)
     }
 
-    func reload() {
-        output.reloadData()
+	func reload(_ hasChanges: Bool) {
+		output.reloadData(hasChanges)
     }
 
     func showAuthView() {
@@ -170,23 +209,49 @@ extension AddExcursionViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         guard let section = CreateExcursionSettingsSections(rawValue: indexPath.section),
-              section == .selectedPlaces else { return false }
+              section == .selectedPlaces,
+			  isEditingTable
+		else { return false }
         return true
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard let section = CreateExcursionSettingsSections(rawValue: indexPath.section),
-              section == .selectedPlaces else { return }
+              section == .selectedPlaces,
+			  isEditingTable,
+			  editingStyle == .delete
+		else { return }
 
-        if editingStyle == .delete {
-            output.removePlace(at: indexPath)
-            reload()
-        }
-    }
+		output.removePlace(at: indexPath)
+	}
+//	func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+//		guard let indexPath,
+//			  let section = CreateExcursionSettingsSections(rawValue: indexPath.section)
+////			  section == .selectedPlaces
+//		else { return }
+////		tableView.layoutIfNeeded()
+//	}
+
+	func tableView(_ tableView: UITableView, 
+				   targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath,
+				   toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+		guard let section1 = CreateExcursionSettingsSections(rawValue: sourceIndexPath.section),
+			  let section2 = CreateExcursionSettingsSections(rawValue: proposedDestinationIndexPath.section),
+			  section1 == .selectedPlaces,
+			  section2 == .selectedPlaces,
+			  isEditingTable
+		else { return sourceIndexPath }
+
+		return proposedDestinationIndexPath
+	}
+
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         guard let section = CreateExcursionSettingsSections(rawValue: indexPath.section),
-              section == .selectedPlaces else { return false }
+              section == .selectedPlaces,
+			  isEditingTable
+		else { return false }
+
         return true
     }
 
@@ -198,11 +263,13 @@ extension AddExcursionViewController: UITableViewDelegate {
             let destinationSection = CreateExcursionSettingsSections(
                 rawValue: destinationIndexPath.section),
             destinationSection == .selectedPlaces else {
-            reload()
+			reload(true)
             return
         }
         output.swapPlaces(from: sourceIndexPath, to: destinationIndexPath)
-        reload()
+        reload(true)
+//		tableView.reloadSections(CreateExcursionSettingsSections.selectedPlaces.rawValue, with: .fade)
+//		tableView.reloadRows(at: <#T##[IndexPath]#>, with: <#T##UITableView.RowAnimation#>)
     }
 }
 
@@ -299,9 +366,9 @@ extension AddExcursionViewController: UITableViewDataSource {
         case .descriptionSection:
             return AddExcursionConstants.DescriptionField.minHeight
         case .selectedPlaces:
-            return 60
+			return UITableView.automaticDimension
         case .addButton:
-            return 44
+            return 50
         }
     }
 }
@@ -361,7 +428,7 @@ extension AddExcursionViewController: PHPickerViewControllerDelegate {
                 if let image = image as? UIImage {
                     DispatchQueue.main.async {
                         self.image = image
-                        self.reload()
+						self.reload(false)
                     }
                 }
             }
@@ -373,6 +440,12 @@ extension AddExcursionViewController: PHPickerViewControllerDelegate {
 
 extension AddExcursionViewController: AddExcursionTableViewHeaderDelegate {
     func editButtonTapped() {
-        tableView.isEditing = !tableView.isEditing
+		let oldValue = tableView.isEditing
+		isEditingTable = !oldValue
+        tableView.isEditing = !oldValue
+		if oldValue {
+			output.reloadData(false)
+		}
+
     }
 }

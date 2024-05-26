@@ -22,9 +22,7 @@ struct DetailExcursion {
             description: "",
             infoViewModel: DetailExcursionInfoModel.empty,
             isLiked: false,
-            places: [
-                .empty
-            ]
+            places: []
         )
     }
 }

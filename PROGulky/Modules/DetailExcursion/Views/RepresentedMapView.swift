@@ -41,11 +41,18 @@ final class MapView: UIView {
         let mapObjects = mapView.mapWindow.map.mapObjects
         mapObjects.addPolyline(with: polyline)
         if !points.isEmpty {
+			var targetLatitude = 0.0
+			var targetLongitude = 0.0
             for (index, point) in points.enumerated() {
                 mapObjects.addPlacemark(with: point, image: Self.pointImage(index + 1))
+				targetLatitude += point.latitude
+				targetLongitude += point.longitude
             }
+			targetLatitude /= Double(points.count)
+			targetLongitude /= Double(points.count)
+			let targetPoint = YMKPoint(latitude: targetLatitude, longitude: targetLongitude)
             mapView.mapWindow.map.move(
-                with: YMKCameraPosition(target: points[0],
+                with: YMKCameraPosition(target: targetPoint,
                                         zoom: 13.5,
                                         azimuth: 0,
                                         tilt: 0)

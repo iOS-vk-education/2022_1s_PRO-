@@ -7,7 +7,10 @@
 
 import Foundation
 
-let baseURL = "http://95.163.236.100:5000"
+struct GlobalConstants {
+	static let baseURL = "http://81.31.245.130:1915"
+}
+let baseURL = GlobalConstants.baseURL
 
 // MARK: - TextConstantsProfile
 

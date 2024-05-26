@@ -7,11 +7,10 @@
 
 import UIKit
 import CoreData
-
 // MARK: - AppDelegate
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
     var appCoordinator: AppCoordinator?
     var window: UIWindow?
     var deeplinkCoordinator = DeeplinkCoordinator()
@@ -39,7 +38,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let mapsConfigurator: MapsConfiguratorServiceProtocol = MapsConfiguratorService()
         mapsConfigurator.activateMaps()
-
         let isDarkMode = UserDefaults.standard.bool(forKey: UserKeys.isDarkMode.rawValue)
         if isDarkMode {
             UIApplication.shared.keyWindow?.overrideUserInterfaceStyle = .dark

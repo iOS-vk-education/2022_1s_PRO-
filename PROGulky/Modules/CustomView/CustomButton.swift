@@ -9,7 +9,7 @@ import UIKit
 
 // MARK: - CustomButton
 
-class CustomButton: UIButton {
+final class CustomButton: UIButton {
     init(title: String,
          color: UIColor,
          textColor: UIColor,

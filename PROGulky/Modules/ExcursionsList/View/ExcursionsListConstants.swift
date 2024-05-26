@@ -17,7 +17,7 @@ struct ExcursionsListConstants {
     }
 
     enum NavBar {
-        static let title: String = "Экскурсии" // Название экрана
+        static let title: String = "Маршруты" // Название экрана
         static let backgroundColor = UIColor.prog.Dynamic.background
     }
 
@@ -148,8 +148,8 @@ struct ExcursionsListConstants {
     }
 
     enum Api {
-        static let baseURL: String = "http://95.163.236.100:5000"
-        static let imageURL: String = "\(baseURL)/images/excursions"
-        static let ownerImageURL: String = "\(baseURL)/images/users"
+        static let baseURL: String = GlobalConstants.baseURL
+		static let imageURL: String = "\(baseURL)/images/excursions"
+		static let ownerImageURL: String = "\(baseURL)/images/users"
     }
 }

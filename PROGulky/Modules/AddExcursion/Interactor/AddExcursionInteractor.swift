@@ -28,7 +28,7 @@ final class AddExcursionInteractor {
 
 extension AddExcursionInteractor: AddExcursionInteractorInput {
     func sendExcursion(excursion: ExcursionForPost, image: UIImage) {
-        ApiManager.shared.sendExcursionImage(image: image) { [weak self] result in
+		ApiManager.shared.sendImage(image: image, type: .excursion) { [weak self] result in
             switch result {
             case let .success(success):
                 var newExcursion = excursion

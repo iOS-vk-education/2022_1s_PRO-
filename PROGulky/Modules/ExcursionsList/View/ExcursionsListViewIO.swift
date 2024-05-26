@@ -40,6 +40,7 @@ protocol ExcursionsListViewOutput: AnyObject {
     func didRatingFilterButtonTapped(with title: String) // Нажата кнопка фильтра "Рейтинг"
 
     func didFilterSubmitButtonTapped() // Нажали на кнопку "Применить" в фильтре
+	func reload() 
 }
 
 // MARK: - ExcursionsListFiltersViewOutput

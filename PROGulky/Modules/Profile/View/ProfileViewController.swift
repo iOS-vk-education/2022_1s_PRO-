@@ -106,7 +106,7 @@ final class ProfileViewController: UIViewController {
         let title = UILabel()
         title.font = UIFont.systemFont(ofSize: 16)
         title.textColor = .prog.Dynamic.lightText
-        title.text = SettingsSection(rawValue: section)?.description
+//        title.text = SettingsSection(rawValue: section)?.description
         view.addSubview(title)
         title.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -164,7 +164,11 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
         switch section {
         case .Account:
-            return AccountOptions.allCases.count
+			if UserDefaultsManager.shared.isGuide {
+				return AccountOptions.allCases.count - 1
+			} else {
+				return AccountOptions.allCases.count
+			}
         case .Other:
             return OtherOptions.allCases.count
         }
@@ -203,7 +207,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
         switch section {
         case .Account:
-            switch AccountOptions(rawValue: indexPath.row)!.rawValue {
+            switch AccountOptions(rawValue: indexPath.row) {
 //            case 0:
 //                present(PlugViewController(), animated: true) // Заглушка
 //                print(TextConstantsProfile.titlePersonalData)
@@ -213,9 +217,9 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 //            case 2:
 //                present(PlugViewController(), animated: true) // Заглушка
 //                print(TextConstantsProfile.titleHistory)
-            case 0:
+			case .beGuide:
                 showMailComposer(message: TextConstantsProfile.beGuideMessage)
-            case 1:
+			case .changeTheme:
                 if UserDefaults.standard.bool(forKey: UserKeys.isDarkMode.rawValue) == true {
                     UIApplication.shared.keyWindow?.overrideUserInterfaceStyle = .light
                     UserDefaults.standard.set(false, forKey: UserKeys.isDarkMode.rawValue)
@@ -229,14 +233,14 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
                 print("no action")
             }
         case .Other:
-            switch OtherOptions(rawValue: indexPath.row)!.rawValue {
-            case 0:
+            switch OtherOptions(rawValue: indexPath.row) {
+			case .contactUs:
                 showMailComposer(message: TextConstantsProfile.contactUsMessageTitle)
-            case 1:
-                if let url = URL(string: "https://pages.flycricket.io/progulki/privacy.html") {
-                    UIApplication.shared.open(url)
-                }
-            case 2:
+//			case .:
+//                if let url = URL(string: "https://pages.flycricket.io/progulki/privacy.html") {
+//                    UIApplication.shared.open(url)
+//                }
+			case .signOut:
                 let alert = UIAlertController(title: "Вы уверены, что хотите выйти?", message: "", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "Продолжить", style: .default, handler: { _ in
                     self.goToLogin()

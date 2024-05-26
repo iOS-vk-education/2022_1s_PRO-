@@ -13,4 +13,8 @@ struct PlaceCoordinates {
     static var empty: PlaceCoordinates {
         .init(latitude: 0, longitude: 0)
     }
+
+	var toString: String {
+		return "\(latitude),\(longitude)"
+	}
 }
